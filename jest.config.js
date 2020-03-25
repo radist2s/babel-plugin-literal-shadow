@@ -12,7 +12,7 @@ module.exports = {
   projects: [
     {
       displayName: 'node',
-      roots: ['<rootDir>/src/babel/'],
+      roots: ['<rootDir>/src/'],
       modulePathIgnorePatterns: [lib],
       testEnvironment: 'node',
     },

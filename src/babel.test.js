@@ -2,7 +2,7 @@ const {stripIndent} = require('common-tags');
 const {transformAsync} = require('@babel/core');
 
 const getPlugin = (options) => [
-    require.resolve('.'),
+    require.resolve('./babel'),
     options
 ];
 
