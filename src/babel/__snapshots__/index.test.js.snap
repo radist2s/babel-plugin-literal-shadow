@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`babel should transform the code from start and at the end 1`] = `
+"import { css as cssTemplate } from 'reshadow';
+const Foo = 'div';
+const styles1 = cssTemplate\`Foo { background: blue; }\`;
+const styles2 = cssTemplate\`Foo { background: blue; }
+\`;
+const styles3 = cssTemplate\`
+Foo { background: blue; }\`;
+export default {
+  styles1,
+  styles2,
+  styles3
+};"
+`;
+
+exports[`babel should transform the code in CSS 1`] = `
+"import { css as cssTemplate } from 'reshadow';
+const Foo = 'div';
+const styles = cssTemplate\`
+Foo { background: blue; }
+
+Foo { fill: red; }
+\`;
+export default styles;"
+`;
+
+exports[`babel should transform the code with Function/Class identifier 1`] = `
+"import styled, { css } from 'reshadow';
+
+const Comp = () => /*#__PURE__*/React.createElement(\\"div\\", null, \\"Component\\");
+
+const Btn = ({
+  color
+}) => styled\`
+  Comp { background: blue; }
+
+  Comp { fill: red; }
+
+  Comp { color: \${color}; }
+\`( /*#__PURE__*/React.createElement(Foobar, null));
+
+export default Btn;"
+`;
+
+exports[`babel should transform the code with string literal identifier 1`] = `
+"import styled, { css } from 'reshadow';
+const Foobar = 'div';
+const Bar = 'span';
+
+const Btn = ({
+  color
+}) => styled\`
+  Foobar { background: blue; }
+
+  Bar + Bar[disabled] { fill: red; }
+
+  Foobar { color: \${color}; }
+\`( /*#__PURE__*/React.createElement(Foobar, null));
+
+export default Btn;"
+`;

@@ -1,0 +1,44 @@
+{
+  "name": "@radist2s/literal-shadow",
+  "version": "1.0.0",
+  "description": "Babel plugin and syntax helper which replaces variables with it’s own names during compilation time",
+  "main": "lib/index.js",
+  "files": ["lib"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radist2s/babel-plugin-literal-shadow.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "babel --source-maps true ./src --out-dir lib --ignore './**/*.test.js','./lib','node_modules'",
+    "build-watch": "babel -w --source-maps true ./src --out-dir lib --ignore './**/*.test.js','./lib','node_modules'",
+    "copy-declarations": "copyfiles -f ./src/*.d.ts ./lib",
+    "test": "jest",
+    "prepublish": "npm run copy-declarations && npm build && npm test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.x",
+    "@babel/core": "^7.x",
+    "@babel/preset-env": "^7.x",
+    "@babel/preset-react": "^7.x",
+    "@babel/types": "^7.x",
+    "@types/react": "^16.x",
+    "common-tags": "^1.8.0",
+    "copyfiles": "^2.x",
+    "jest": "^25.x",
+    "jest-environment-enzyme": "^7.x",
+    "jest-enzyme": "^7.x"
+  },
+  "homepage": "https://github.com/radist2s/literal-shadow#readme",
+  "directories": {
+    "lib": "lib"
+  },
+  "author": "Alex Batalov",
+  "bugs": {
+    "url": "https://github.com/radist2s/literal-shadow/issues"
+  }
+}
