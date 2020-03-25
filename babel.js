@@ -6,4 +6,4 @@ Object.defineProperty(exports, '__esModule', {
     value: true,
 });
 
-exports.default = require('./lib/babel');
+module.exports = require('./lib/babel');
