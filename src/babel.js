@@ -2,8 +2,14 @@ const t = require('@babel/types');
 
 const defaultOptions = {
     taggedTemplateModules: ['reshadow'],
-    source: '@radist2s/literal-shadow',
+    source: require('../package.json').name,
 };
+
+const babelPluginName = (() => {
+    const [vendorNamespace, pluginName] = defaultOptions.source.split('/');
+
+    return pluginName || vendorNamespace;
+})();
 
 function findExpressionQuasisPosition(
     callExpr,
@@ -165,20 +171,17 @@ function getImportIdentifierNamesForPackage(path, whiteListSources = []) {
 }
 
 export default function ({types: t}, pluginOptions = {}) {
-    const options = Object.assign({}, defaultOptions, pluginOptions)
+    const options = Object.assign({}, defaultOptions, pluginOptions);
 
     let packageImports = [];
     let wrapperTaggedTemplateImports = [];
 
     return {
-        name: 'babel-plugin-literal-shadow',
+        name: babelPluginName,
 
         visitor: {
             ImportDeclaration(path) {
-                const {
-                    taggedTemplateModules,
-                    source: packageName,
-                } = options;
+                const {taggedTemplateModules, source: packageName} = options;
 
                 const wrapperTaggedTemplateNames = getImportIdentifierNamesForPackage(
                     path,

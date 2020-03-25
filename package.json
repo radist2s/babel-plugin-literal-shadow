@@ -35,7 +35,7 @@
     "jest-environment-enzyme": "^7.x",
     "jest-enzyme": "^7.x"
   },
-  "homepage": "https://github.com/radist2s/literal-shadow#readme",
+  "homepage": "https://github.com/radist2s/babel-plugin-literal-shadow#readme",
   "directories": {
     "lib": "lib"
   },
@@ -44,6 +44,6 @@
   },
   "author": "Alex Batalov",
   "bugs": {
-    "url": "https://github.com/radist2s/literal-shadow/issues"
+    "url": "https://github.com/radist2s/babel-plugin-literal-shadow/issues"
   }
 }

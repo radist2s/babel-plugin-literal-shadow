@@ -61,3 +61,21 @@ const Btn = ({
 
 export default Btn;"
 `;
+
+exports[`babel should use options 1`] = `
+"import myStyled from 'my-styled-lib';
+
+const Button = () => /*#__PURE__*/React.createElement(Button, null);
+
+const style1 = myStyled\`
+    Button {
+        color: red;
+    }
+\`;
+const style2 = myStyled\`
+    Button { // also possible to use function as Tag inside preparing template
+        color: red;
+    }
+    // This could be used for semantic purposes instead of function call implementation
+\`;"
+`;

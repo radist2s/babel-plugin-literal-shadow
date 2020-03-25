@@ -25,10 +25,36 @@ const transform = (code) => transformCode(code);
 transform.with = (params) => (code) => transformCode(code, params);
 
 describe('babel', () => {
+    it('should use options', async () => {
+        const pluginOptions = {"taggedTemplateModules": "my-styled-lib", "source":  "my-component-name-proxy"}
+
+        const {code} = await transform.with({...defaultOptions, plugins: [getPlugin(pluginOptions)]})`
+        import myStyled from 'my-styled-lib'
+        import comProxy from 'my-component-name-proxy'
+        
+        const Button = () => <Button />
+        
+        const style1 = myStyled\`
+            \${comProxy(Button)} {
+                color: red;
+            }
+        \`
+        
+        const style2 = myStyled\`
+            \${comProxy\`\${Button}\`} { // also possible to use function as Tag inside preparing template
+                color: red;
+            }
+            // This could be used for semantic purposes instead of function call implementation
+        \`
+      `;
+
+        expect(code).toMatchSnapshot();
+    });
+
     it('should transform the code with string literal identifier', async () => {
-        const {code} = await transform`
+      const {code} = await transform`
       import styled, {css} from 'reshadow';
-      import shadowName from '@radist2s/literal-shadow';
+      import shadowName from '@radist2s/babel-plugin-literal-shadow';
 
       const Foobar = 'div';
       const Bar = 'span';
@@ -48,9 +74,9 @@ describe('babel', () => {
     });
 
     it('should transform the code with Function/Class identifier', async () => {
-        const {code} = await transform`
+      const {code} = await transform`
       import styled, {css} from 'reshadow';
-      import shadowName from '@radist2s/literal-shadow';
+      import shadowName from '@radist2s/babel-plugin-literal-shadow';
 
       const Comp = () => <div>Component</div>
 
@@ -71,7 +97,7 @@ describe('babel', () => {
     it('should transform the code in CSS', async () => {
         const {code} = await transform`
             import {css as cssTemplate} from 'reshadow';
-            import shadowName from '@radist2s/literal-shadow';
+            import shadowName from '@radist2s/babel-plugin-literal-shadow';
 
             const Foo = 'div'
 
@@ -89,7 +115,7 @@ describe('babel', () => {
     it('should transform the code from start and at the end', async () => {
         const {code} = await transform`
             import {css as cssTemplate} from 'reshadow';
-            import shadowName from '@radist2s/literal-shadow';
+            import shadowName from '@radist2s/babel-plugin-literal-shadow';
 
             const Foo = 'div'
 
