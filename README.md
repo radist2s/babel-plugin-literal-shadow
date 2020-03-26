@@ -66,14 +66,15 @@ Short notation is not allowed:~~@radist2s/literal-shadow/balbel~~
 #### Examples
 
 Using of custom styled component library and custom proxy function module.
-####### Babel configuration
+
+Babel configuration
 ```json
 {"plugins": [
   ["@radist2s/babel-plugin-literal-shadow/babel", {"taggedTemplateModules": "my-styled-lib", "source":  "my-component-name-proxy"}]    
 ]}
 ```
 
-####### Component implementation
+Component implementation
 ```jsx harmony
 import myStyled, {css as myPlainCss, otherTag as css} from 'my-styled-lib' // only default import and {css} is supported as tags identifiers
 import comProxy from 'my-component-name-proxy'
