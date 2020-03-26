@@ -25,21 +25,44 @@ const transform = (code) => transformCode(code);
 transform.with = (params) => (code) => transformCode(code, params);
 
 describe('babel', () => {
+    it('should be compatible with `reshadow` plugin', async () => {
+        const pluginOptions = {"taggedTemplateModules": "reshadow", "source":  "shadow"}
+
+        const plugins = [getPlugin(pluginOptions), 'module:@reshadow/babel']
+
+        const {code} = await transform.with({...defaultOptions, plugins})`
+        import myReshadowStyled, {css} from 'reshadow'
+        import shadow from 'shadow'
+
+        const Button = 'button'
+
+        const buttonStyles = css\`\${shadow(Button)} {font: arial}\`
+
+        const StyledButton = () => myReshadowStyled(buttonStyles)\`
+            \${shadow(Button)} {
+                color: purple;
+            }
+        \`(<Button />)
+      `;
+
+        expect(code).toMatchSnapshot();
+    });
+
     it('should use options', async () => {
         const pluginOptions = {"taggedTemplateModules": "my-styled-lib", "source":  "my-component-name-proxy"}
 
         const {code} = await transform.with({...defaultOptions, plugins: [getPlugin(pluginOptions)]})`
         import myStyled from 'my-styled-lib'
         import comProxy from 'my-component-name-proxy'
-        
+
         const Button = () => <Button />
-        
+
         const style1 = myStyled\`
             \${comProxy(Button)} {
                 color: red;
             }
         \`
-        
+
         const style2 = myStyled\`
             \${comProxy\`\${Button}\`} { // also possible to use function as Tag inside preparing template
                 color: red;
@@ -76,14 +99,14 @@ describe('babel', () => {
     it('should transform the code with Function/Class identifier', async () => {
       const {code} = await transform`
       import styled, {css} from 'reshadow';
-      import shadowName from '@radist2s/babel-plugin-literal-shadow';
+      import cn from '@radist2s/babel-plugin-literal-shadow';
 
       const Comp = () => <div>Component</div>
 
       const Btn = ({color}) => styled\`
-        \${shadowName\`\${Comp}\`} { background: blue; }
+        \${cn\`\${Comp}\`} { background: blue; }
 
-        \${shadowName(Comp)} { fill: red; }
+        \${cn(Comp)} { fill: red; }
 
         Comp { color: \${color}; }
       \`(<Foobar />);

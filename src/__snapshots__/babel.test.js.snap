@@ -1,5 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`babel should be compatible with \`reshadow\` plugin 1`] = `
+"import myReshadowStyled, { css, __css__, set, create } from \\"@reshadow/core\\";
+const Button = 'button';
+const buttonStyles = (
+/*__reshadow_css_start__*/
+__css__(
+/*__inner_css_start__*/
+\`.___Button_14i87_1 {font: arial}\`
+/*__inner_css_end__*/
+, \\"14i87f\\")
+/*__reshadow_css_end__*/
+, {
+  \\"__Button\\": \`___Button_14i87_1\`
+});
+const myReshadowStyled_c8 = create([buttonStyles, (
+/*__reshadow_css_start__*/
+__css__(
+/*__inner_css_start__*/
+\`.___Button_117nv_1 {
+    color: purple;
+}\`
+/*__inner_css_end__*/
+, \\"117nvk7\\")
+/*__reshadow_css_end__*/
+, {
+  \\"__Button\\": \`___Button_117nv_1\`
+})]);
+
+const StyledButton = () => myReshadowStyled((set([myReshadowStyled_c8]), /*#__PURE__*/React.createElement(Button, {
+  className: myReshadowStyled.styles[\\"__Button\\"]
+})));"
+`;
+
 exports[`babel should transform the code from start and at the end 1`] = `
 "import { css as cssTemplate } from 'reshadow';
 const Foo = 'div';

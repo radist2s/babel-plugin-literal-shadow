@@ -68,71 +68,67 @@ function getTemplateExpressionSelectorHelperArgument(expr, identifierName) {
     }
 }
 
-const updateTemplateLiteralParamNameVisitor = {
-    TemplateLiteral(path) {
-        if (!path.node.expressions || !path.node.expressions.length) {
-            return;
+function templateLiteralVisitor(path) {
+    if (!path.node.expressions || !path.node.expressions.length) {
+        return;
+    }
+
+    path.node.expressions = path.node.expressions.filter(function (expr) {
+        const {identifierNames = []} = path.state;
+
+        let identifier = null;
+
+        for (const idName of identifierNames) {
+            identifier = getTemplateExpressionSelectorHelperArgument(
+                expr,
+                idName,
+            );
+
+            if (identifier) {
+                break;
+            }
         }
 
-        path.node.expressions = path.node.expressions.filter(function (expr) {
-            const {identifierNames = []} = path.state;
+        if (!t.isIdentifier(identifier)) {
+            return true;
+        }
 
-            let identifier = null;
+        const afterElement = findExpressionQuasisPosition(
+            expr,
+            path.node.quasis,
+        );
 
-            for (const idName of identifierNames) {
-                identifier = getTemplateExpressionSelectorHelperArgument(
-                    expr,
-                    idName,
-                );
+        if (!afterElement) {
+            return true;
+        }
 
-                if (identifier) {
-                    break;
-                }
-            }
+        const beforeElement = findExpressionQuasisPosition(
+            expr,
+            path.node.quasis,
+            true,
+        );
 
-            if (!t.isIdentifier(identifier)) {
-                return true;
-            }
+        const selector = identifier.name;
 
-            const afterElement = findExpressionQuasisPosition(
-                expr,
-                path.node.quasis,
-            );
+        // Actually, before element will always exists, even with {start: 1, end: 1}, means, with zero length
+        if (!beforeElement) {
+            return true;
+        }
 
-            if (!afterElement) {
-                return true;
-            }
-
-            const beforeElement = findExpressionQuasisPosition(
-                expr,
-                path.node.quasis,
-                true,
-            );
-
-            const selector = identifier.name;
-
-            // Actually, before element will always exists, even with {start: 1, end: 1}, means, with zero length
-            if (!beforeElement) {
-                return true;
-            }
-
-            putElementData(beforeElement, {
-                start: beforeElement.start,
-                end: afterElement.end,
-                value: {
-                    raw: `${beforeElement.value.raw}${selector}${afterElement.value.raw}`,
-                    cooked: `${beforeElement.value.cooked}${selector}${afterElement.value.cooked}`,
-                },
-            });
-
-            path.node.quasis.splice(path.node.quasis.indexOf(afterElement), 1);
-
-            return false;
+        putElementData(beforeElement, {
+            start: beforeElement.start,
+            end: afterElement.end,
+            value: {
+                raw: `${beforeElement.value.raw}${selector}${afterElement.value.raw}`,
+                cooked: `${beforeElement.value.cooked}${selector}${afterElement.value.cooked}`,
+            },
         });
 
-        return;
-    },
-};
+        path.node.quasis.splice(path.node.quasis.indexOf(afterElement), 1);
+
+        return false;
+    });
+}
 
 /**
  * @param {NodePath} path
@@ -170,16 +166,97 @@ function getImportIdentifierNamesForPackage(path, whiteListSources = []) {
     return names;
 }
 
+/**
+ * @param path
+ * @param {string[]} wrapperTagImports
+ * @param {string[]} packageImports
+ */
+function taggedTemplateExpressionVisitor(
+    path,
+    wrapperTagImports = [],
+    packageImports = [],
+) {
+    let taggedName = '';
+
+    if (path.isTaggedTemplateExpression()) {
+        const {
+            node: {tag},
+        } = path;
+        if (tag.arguments && tag.arguments.length && tag.callee) {
+            taggedName = tag.callee.name;
+        } else {
+            taggedName = tag.name;
+        }
+    } else if (path.isCallExpression()) {
+        taggedName = path.node.callee.tag.name;
+    }
+
+    if (!taggedName || !wrapperTagImports.some((name) => name === taggedName)) {
+        return;
+    }
+
+    path.traverse(
+        {TemplateLiteral: templateLiteralVisitor},
+        {
+            taggedName,
+            identifierNames: packageImports,
+        },
+    );
+}
+
+function callExpressionVisitor(path) {}
+
 export default function ({types: t}, pluginOptions = {}) {
     const options = Object.assign({}, defaultOptions, pluginOptions);
 
     let packageImports = [];
     let wrapperTaggedTemplateImports = [];
+    const visited = new WeakSet();
+
+    const isStyledExpression = (node) => {
+        if (t.isCallExpression(node))
+            return (
+                wrapperTaggedTemplateImports.indexOf(node.callee.name) !== -1
+            );
+
+        return false;
+    };
 
     return {
         name: babelPluginName,
 
         visitor: {
+            CallExpression(path) {
+                if (visited.has(path.node)) {
+                    return;
+                }
+
+                visited.add(path.node);
+
+                const {callee} = path.node;
+
+                if (t.isTaggedTemplateExpression(callee)) {
+                    path.traverse({
+                        TaggedTemplateExpression: (templatePath) =>
+                            taggedTemplateExpressionVisitor(
+                                templatePath,
+                                wrapperTaggedTemplateImports,
+                                packageImports,
+                            ),
+                    });
+
+                    return;
+                }
+            },
+
+            TaggedTemplateExpression(path) {
+                taggedTemplateExpressionVisitor(
+                    path,
+                    wrapperTaggedTemplateImports,
+                    packageImports,
+                );
+            },
+
             ImportDeclaration(path) {
                 const {taggedTemplateModules, source: packageName} = options;
 
@@ -210,23 +287,6 @@ export default function ({types: t}, pluginOptions = {}) {
 
                     path.remove(); // remove package imports, just cast a shadow and disappear...
                 }
-            },
-
-            TaggedTemplateExpression(path) {
-                const taggedName = path.node.tag.name;
-
-                if (
-                    !wrapperTaggedTemplateImports.some(
-                        (name) => name === taggedName,
-                    )
-                ) {
-                    return;
-                }
-
-                path.traverse(updateTemplateLiteralParamNameVisitor, {
-                    taggedName,
-                    identifierNames: packageImports,
-                });
             },
         },
     };
