@@ -1,6 +1,6 @@
 {
   "name": "@radist2s/babel-plugin-literal-shadow",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Babel plugin and syntax helper which replaces variables with it’s own names during compilation time",
   "main": "lib/index.js",
   "files": [
@@ -27,13 +27,13 @@
     "@babel/cli": "^7.x",
     "@babel/core": "^7.x",
     "@babel/plugin-syntax-jsx": "^7.8.3",
-    "@babel/preset-env": "^7.x",
+    "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.x",
-    "@babel/types": "^7.x",
+    "@babel/types": "^7.9.5",
     "@reshadow/babel": "0.0.1-alpha.74",
-    "@types/react": "^16.x",
+    "@types/react": "^16.9.34",
     "common-tags": "^1.8.0",
-    "jest": "^25.x",
+    "jest": "^25.3.0",
     "jest-environment-enzyme": "^7.x",
     "jest-enzyme": "^7.x"
   },
