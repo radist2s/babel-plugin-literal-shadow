@@ -227,15 +227,15 @@ export default function ({types: t}, pluginOptions = {}) {
 
         visitor: {
             CallExpression(path) {
-                if (visited.has(path.node)) {
+                const {node, node: {callee}} = path;
+
+                if (visited.has(node)) {
                     return;
                 }
 
-                visited.add(path.node);
+                visited.add(node);
 
-                const {callee} = path.node;
-
-                if (t.isTaggedTemplateExpression(callee)) {
+                if (isStyledExpression(callee) || isStyledExpression(node) || t.isTaggedTemplateExpression(callee)) {
                     path.traverse({
                         TaggedTemplateExpression: (templatePath) =>
                             taggedTemplateExpressionVisitor(

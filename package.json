@@ -1,6 +1,6 @@
 {
   "name": "@radist2s/babel-plugin-literal-shadow",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Babel plugin and syntax helper which replaces variables with it’s own names during compilation time",
   "main": "lib/index.js",
   "files": [
